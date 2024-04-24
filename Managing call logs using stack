@@ -1,0 +1,86 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+#define MAX_CALL_LOGS 100
+
+struct CallLog {
+    char name[50];
+    char phoneNumber[15];
+    int duration;
+    char date[20];
+    char time[20];
+};
+
+void addCallLog(struct CallLog logs[], int *count) {
+    if (*count >= MAX_CALL_LOGS) {
+        printf("Call log storage limit reached!\n");
+        return;
+    }
+
+    printf("Enter name: ");
+    scanf("%s", logs[*count].name);
+    printf("Enter phone number: ");
+    scanf("%s", logs[*count].phoneNumber);
+    printf("Enter call duration (in seconds): ");
+    scanf("%d", &logs[*count].duration);
+
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    t->tm_hour += 5; 
+    t->tm_min += 30; 
+    if (t->tm_min >= 60) {
+        t->tm_hour += 1;
+        t->tm_min -= 60;
+    }
+
+    strftime(logs[*count].date, sizeof(logs[*count].date), "%Y-%m-%d", t);
+    strftime(logs[*count].time, sizeof(logs[*count].time), "%H:%M:%S", t);
+
+    (*count)++;
+}
+
+void displayCallLogsLIFO(struct CallLog logs[], int count) {
+    printf("\nCall Logs:\n");
+    for (int i = count - 1; i >= 0; i--) {
+        printf("Name: %s\n", logs[i].name);
+        printf("Phone Number: %s\n", logs[i].phoneNumber);
+        printf("Duration: %d seconds\n", logs[i].duration);
+        printf("Date: %s\n", logs[i].date);
+        printf("Time: %s\n", logs[i].time);
+        printf("--------------------\n");
+    }
+}
+
+int main() {
+    struct CallLog callLogs[MAX_CALL_LOGS];
+    int callLogCount = 0;
+    int choice;
+
+    do {
+        printf("\nMenu:\n");
+        printf("1. Add a call log\n");
+        printf("2. Display call logs\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addCallLog(callLogs, &callLogCount);
+                break;
+            case 2:
+                displayCallLogsLIFO(callLogs, callLogCount);
+                break;
+            case 3:
+                printf("Exiting program.\n");
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while (choice != 3);
+
+    return 0;
+}
